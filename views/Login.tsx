@@ -41,13 +41,7 @@ export default function Login({ navigation }: { navigation: any }) {
         autoCompleteType="password"
         textContentType="password"
       />
-      <Button
-        title="Login"
-        onPress={() => {
-          console.log(`${email}, ${password}`);
-          dispatch(authenticated("prateek"));
-        }}
-      />
+      <Button title="Login" onPress={handleLogin} />
       <Text>
         not a user?
         <TouchableHighlight
