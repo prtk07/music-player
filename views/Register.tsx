@@ -1,4 +1,5 @@
-import React from "react";
+import { NavigateNextTwoTone } from "@material-ui/icons";
+import React, { useState } from "react";
 import {
   Button,
   StyleSheet,
@@ -7,35 +8,68 @@ import {
   TextInput,
   TouchableHighlight,
 } from "react-native";
+import { useDispatch } from "react-redux";
+import { authenticated } from "../redux/actions/auth-actions";
 
 export default function Register({ navigation }: { navigation: any }) {
+  const [userData, setUserData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const dispatch = useDispatch();
+
+  function handleRegister() {
+    fetch("http://localhost:5000/user/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userData),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        dispatch(authenticated(data));
+      });
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Register </Text>
       <TextInput
         style={styles.input}
         placeholder="Name"
-        textContentType="emailAddress"
+        textContentType="name"
+        onChangeText={(e) => {
+          setUserData({ ...userData, name: e });
+        }}
       />
       <TextInput
         style={styles.input}
         placeholder="Email"
         textContentType="emailAddress"
+        onChangeText={(e) => {
+          setUserData({ ...userData, email: e });
+        }}
       />
       <TextInput
         style={styles.input}
         placeholder="Password"
-        textContentType="emailAddress"
+        textContentType="password"
+        onChangeText={(e) => {
+          setUserData({ ...userData, password: e });
+        }}
       />
       <TextInput
         style={styles.input}
         placeholder="Confirm Password"
-        textContentType="emailAddress"
+        textContentType="password"
       />
       <Button
         title="Register"
         onPress={() => {
-          navigation.navigate("Register");
+          handleRegister();
         }}
       />
       <Text>

@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import { TouchableHighlight } from "react-native";
 import { Button, StyleSheet, Text, View, TextInput } from "react-native";
+import { useDispatch } from "react-redux";
+import { authenticated } from "../redux/actions/auth-actions";
 
 export default function Login({ navigation }: { navigation: any }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const dispatch = useDispatch();
 
   return (
     <View style={styles.container}>
@@ -28,6 +32,7 @@ export default function Login({ navigation }: { navigation: any }) {
         title="Login"
         onPress={() => {
           console.log(`${email}, ${password}`);
+          dispatch(authenticated("prateek"));
         }}
       />
       <Text>
