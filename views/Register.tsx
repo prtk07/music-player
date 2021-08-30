@@ -31,8 +31,13 @@ export default function Register({ navigation }: { navigation: any }) {
     })
       .then((res) => res.json())
       .then((data) => {
-        dispatch(authenticated(data));
+        if (data.message) console.log(data.message);
+
+        if (data.token) dispatch(authenticated(data));
         dispatch(isReady());
+      })
+      .catch((e) => {
+        console.log("this is the wwat");
       });
   }
 

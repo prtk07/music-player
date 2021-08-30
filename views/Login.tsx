@@ -3,6 +3,7 @@ import { TouchableHighlight } from "react-native";
 import { Button, StyleSheet, Text, View, TextInput } from "react-native";
 import { useDispatch } from "react-redux";
 import { authenticated } from "../redux/actions/auth-actions";
+import { isLoading, isReady } from "../redux/actions/loading-actions";
 
 export default function Login({ navigation }: { navigation: any }) {
   const [email, setEmail] = useState("");
@@ -11,6 +12,7 @@ export default function Login({ navigation }: { navigation: any }) {
   const dispatch = useDispatch();
 
   function handleLogin() {
+    dispatch(isLoading());
     fetch("http://localhost:5000/user/login", {
       method: "POST",
       headers: {
@@ -20,7 +22,15 @@ export default function Login({ navigation }: { navigation: any }) {
     })
       .then((res) => res.json())
       .then((data) => {
-        dispatch(authenticated(data));
+        if (data.message) console.log(data.message);
+        if (data.token) {
+          dispatch(authenticated(data.token));
+        }
+        dispatch(isReady());
+      })
+      .catch((e) => {
+        console.log(e);
+        dispatch(isReady());
       });
   }
   return (
