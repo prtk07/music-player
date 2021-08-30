@@ -10,6 +10,19 @@ export default function Login({ navigation }: { navigation: any }) {
 
   const dispatch = useDispatch();
 
+  function handleLogin() {
+    fetch("http://localhost:5000/user/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        dispatch(authenticated(data));
+      });
+  }
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
