@@ -1,4 +1,3 @@
-import { NavigateNextTwoTone } from "@material-ui/icons";
 import React, { useState } from "react";
 import {
   Button,
@@ -10,6 +9,7 @@ import {
 } from "react-native";
 import { useDispatch } from "react-redux";
 import { authenticated } from "../redux/actions/auth-actions";
+import { isLoading, isReady } from "../redux/actions/loading-actions";
 
 export default function Register({ navigation }: { navigation: any }) {
   const [userData, setUserData] = useState({
@@ -21,6 +21,7 @@ export default function Register({ navigation }: { navigation: any }) {
   const dispatch = useDispatch();
 
   function handleRegister() {
+    dispatch(isLoading());
     fetch("http://localhost:5000/user/signup", {
       method: "POST",
       headers: {
@@ -31,6 +32,7 @@ export default function Register({ navigation }: { navigation: any }) {
       .then((res) => res.json())
       .then((data) => {
         dispatch(authenticated(data));
+        dispatch(isReady());
       });
   }
 
