@@ -1,18 +1,58 @@
 import React, { useState } from "react";
-import { TouchableHighlight } from "react-native";
-import { Button, StyleSheet, Text, View, TextInput } from "react-native";
+import {
+  Button,
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  ActivityIndicator,
+  TouchableHighlight,
+} from "react-native";
 import { useDispatch } from "react-redux";
 import { authenticated } from "../redux/actions/auth-actions";
-import { isLoading, isReady } from "../redux/actions/loading-actions";
+import ErrorMessage from "../components/ErrorMessage";
 
 export default function Login({ navigation }: { navigation: any }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [err, setErr] = useState("");
+  const [authAttempt, setAuthAttempt] = useState(false);
+
+  function handleErrMessage(message: string) {
+    setErr(message);
+    setTimeout(() => {
+      setErr("");
+    }, 3000);
+  }
 
   const dispatch = useDispatch();
 
+  function checkData(): boolean {
+    const re =
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+    if (!email) {
+      handleErrMessage("Enter Email");
+      return true;
+    }
+
+    if (!password) {
+      handleErrMessage("Enter Password");
+      return true;
+    }
+
+    const validEmail = re.test(email.toLowerCase());
+    if (!validEmail) {
+      handleErrMessage("Invalid Email");
+      return true;
+    }
+    return false;
+  }
+
   function handleLogin() {
-    dispatch(isLoading());
+    let invalidData = checkData();
+    if (invalidData) return;
+    setAuthAttempt(true);
     fetch("http://localhost:5000/user/login", {
       method: "POST",
       headers: {
@@ -22,19 +62,19 @@ export default function Login({ navigation }: { navigation: any }) {
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data.message) console.log(data.message);
-        if (data.token) {
-          dispatch(authenticated(data.token));
-        }
-        dispatch(isReady());
+        setAuthAttempt(false);
+
+        if (data.message) handleErrMessage(data.message);
+        if (data.token) dispatch(authenticated(data.token));
       })
       .catch((e) => {
-        console.log(e);
-        dispatch(isReady());
+        setAuthAttempt(false);
+        handleErrMessage("something went wrong");
       });
   }
   return (
     <View style={styles.container}>
+      {!!err && <ErrorMessage message={err} />}
       <Text style={styles.title}>Login</Text>
       <TextInput
         style={styles.input}
@@ -51,7 +91,11 @@ export default function Login({ navigation }: { navigation: any }) {
         autoCompleteType="password"
         textContentType="password"
       />
-      <Button title="Login" onPress={handleLogin} />
+      {authAttempt ? (
+        <ActivityIndicator />
+      ) : (
+        <Button title="Login" onPress={handleLogin} />
+      )}
       <Text>
         not a user?
         <TouchableHighlight

@@ -6,10 +6,11 @@ import {
   View,
   TextInput,
   TouchableHighlight,
+  ActivityIndicator,
 } from "react-native";
 import { useDispatch } from "react-redux";
+import ErrorMessage from "../components/ErrorMessage";
 import { authenticated } from "../redux/actions/auth-actions";
-import { isLoading, isReady } from "../redux/actions/loading-actions";
 
 export default function Register({ navigation }: { navigation: any }) {
   const [userData, setUserData] = useState({
@@ -17,11 +18,68 @@ export default function Register({ navigation }: { navigation: any }) {
     email: "",
     password: "",
   });
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [authAttempt, setAuthAttempt] = useState(false);
+  const [err, setErr] = useState("");
+
+  function handleErrMessage(message: string) {
+    setErr(message);
+    setTimeout(() => {
+      setErr("");
+    }, 3000);
+  }
+
+  function checkFormData(): boolean {
+    const emailRE =
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+    const nameRE = /^[a-zA-Z ]{2,30}$/;
+
+    if (!userData.name) {
+      handleErrMessage("Enter Name");
+      return true;
+    }
+
+    if (!userData.email) {
+      handleErrMessage("Enter Email");
+      return true;
+    }
+
+    if (!userData.password) {
+      handleErrMessage("Enter Password");
+      return true;
+    }
+
+    const validEmail = emailRE.test(userData.email.toLowerCase());
+    if (!validEmail) {
+      handleErrMessage("Invalid Email");
+      return true;
+    }
+
+    const validName = nameRE.test(userData.name);
+    if (!validName) {
+      handleErrMessage("enter valid Name");
+      return true;
+    }
+
+    if (userData.password.length < 8) {
+      handleErrMessage("Password to be minimum of 8 characters");
+      return true;
+    }
+
+    if (confirmPassword !== userData.password) return true;
+
+    return false;
+  }
 
   const dispatch = useDispatch();
 
   function handleRegister() {
-    dispatch(isLoading());
+    let invalidData = checkFormData();
+    if (invalidData) return;
+
+    setAuthAttempt(true);
+
     fetch("http://localhost:5000/user/signup", {
       method: "POST",
       headers: {
@@ -31,18 +89,20 @@ export default function Register({ navigation }: { navigation: any }) {
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data.message) console.log(data.message);
+        setAuthAttempt(false);
 
+        if (data.message) handleErrMessage(data.message);
         if (data.token) dispatch(authenticated(data));
-        dispatch(isReady());
       })
       .catch((e) => {
-        console.log("this is the wwat");
+        setAuthAttempt(false);
+        handleErrMessage("something went wrong");
       });
   }
 
   return (
     <View style={styles.container}>
+      {!!err && <ErrorMessage message={err} />}
       <Text style={styles.title}>Register </Text>
       <TextInput
         style={styles.input}
@@ -68,17 +128,24 @@ export default function Register({ navigation }: { navigation: any }) {
           setUserData({ ...userData, password: e });
         }}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Confirm Password"
-        textContentType="password"
-      />
-      <Button
-        title="Register"
-        onPress={() => {
-          handleRegister();
-        }}
-      />
+      <View>
+        <TextInput
+          style={styles.input}
+          placeholder="Confirm Password"
+          textContentType="password"
+          onChangeText={setConfirmPassword}
+        />
+        {userData.password !== confirmPassword && (
+          <Text style={styles.passwordNoMatch}>Password Does Not Match</Text>
+        )}
+      </View>
+
+      {authAttempt ? (
+        <ActivityIndicator />
+      ) : (
+        <Button title="Register" onPress={handleRegister} />
+      )}
+
       <Text>
         Already a user?
         <TouchableHighlight
@@ -118,5 +185,10 @@ const styles = StyleSheet.create({
     color: "blue",
     textDecorationLine: "underline",
     textDecorationColor: "blue",
+  },
+  passwordNoMatch: {
+    color: "red",
+    position: "absolute",
+    top: 39,
   },
 });
