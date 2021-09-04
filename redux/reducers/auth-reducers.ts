@@ -1,18 +1,15 @@
 export default function authReducer(
   state = {
-    isLoading: false,
     token: "",
   },
   action: { type: string; payload: any }
 ) {
   switch (action.type) {
     case "addAuth":
-      return { isLoading: false, token: action.payload };
+      return { token: action.payload };
 
     case "removeAuth":
-      return {
-        isLoading: false,
-      };
+      return {};
 
     default:
       return state;

@@ -6,12 +6,28 @@ import {
   TouchableHighlight,
   ScrollView,
 } from "react-native";
+import { useSelector } from "react-redux";
 import Footer from "../components/Footer";
 
 import Header from "../components/Header";
 import Song from "../components/Song";
 
 function Home() {
+  const auth = useSelector((state: any) => state.auth);
+  function getUser() {
+    fetch("http://localhost:5000/user", {
+      method: "get",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${auth.token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+      });
+  }
+
   return (
     <View style={styles.container}>
       <Header title="Choose a Title" />
