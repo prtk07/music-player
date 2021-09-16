@@ -53,7 +53,7 @@ export default function Login({ navigation }: { navigation: any }) {
     let invalidData = checkData();
     if (invalidData) return;
     setAuthAttempt(true);
-    fetch("http://localhost:5000/user/login", {
+    fetch("https://musicplayer-api12.herokuapp.com/user/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

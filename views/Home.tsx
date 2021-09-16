@@ -15,7 +15,7 @@ import Song from "../components/Song";
 function Home() {
   const auth = useSelector((state: any) => state.auth);
   function getUser() {
-    fetch("http://localhost:5000/user", {
+    fetch("https://musicplayer-api12.herokuapp.com/user", {
       method: "get",
       headers: {
         "Content-Type": "application/json",

@@ -80,7 +80,7 @@ export default function Register({ navigation }: { navigation: any }) {
 
     setAuthAttempt(true);
 
-    fetch("http://localhost:5000/user/signup", {
+    fetch("https://musicplayer-api12.herokuapp.com/user/signup", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
